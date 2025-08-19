@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DGII.Application
-{
-    internal class GlobalUsing
-    {
-    }
-}
+﻿global using ErrorOr;
+global using MediatR;
+global using FluentValidation;
+global using System.Reflection;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.Extensions.DependencyInjection;

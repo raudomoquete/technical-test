@@ -1,0 +1,9 @@
+﻿global using Serilog;
+global using ErrorOr;
+global using MediatR;
+global using DGII.API.Helpers;
+global using DGII.API.Middleware;
+global using Microsoft.AspNetCore.Mvc;
+global using System.Text.Json.Serialization;
+global using Microsoft.AspNetCore.Diagnostics;
+global using Microsoft.AspNetCore.Mvc.ModelBinding;

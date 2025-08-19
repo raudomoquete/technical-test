@@ -1,5 +1,5 @@
 ﻿namespace DGII.Infrastructure;
 
-internal class dbContextDGII
+public partial class dbContextDGII
 {
 }
