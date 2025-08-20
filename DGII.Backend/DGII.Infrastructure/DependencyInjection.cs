@@ -9,8 +9,8 @@ public static class DependencyInjection
     {
         var assembly = typeof(DependencyInjection).Assembly;
         services
-            .AddServices()
-            .AddPersistence<dbContextDGII>(configuration);
+            .AddServices();
+            //.AddPersistence<dbContextDGII>(configuration);
 
         services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
 
@@ -33,7 +33,7 @@ public static class DependencyInjection
         services.AddDbContext<TContext>((sp, options) =>
         {
 
-            options.UseSqlServer(configuration.GetConnectionString("db-name"));
+            options.UseSqlServer(configuration.GetConnectionString("Dgii_test_DB"));
         });
 
         services.AddScoped<IRepositoryFactory, UnitOfWork<TContext>>();

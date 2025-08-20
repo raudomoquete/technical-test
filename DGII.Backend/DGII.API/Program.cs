@@ -1,9 +1,11 @@
 using DGII.API;
+using DGII.Application;
+using DGII.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
-builder.Services.AddAPI(builder.Configuration).AddApplication().AddInfrastructure(builder.Configuration).AddPersistence(builder.Configuration);
+builder.Services.AddAPI(builder.Configuration).AddApplication().AddInfrastructure(builder.Configuration);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddSwaggerGen(c =>
 {
