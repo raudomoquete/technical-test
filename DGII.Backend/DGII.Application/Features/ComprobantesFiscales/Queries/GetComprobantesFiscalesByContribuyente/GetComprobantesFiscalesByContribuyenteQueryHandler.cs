@@ -1,5 +1,6 @@
 using DGII.Application.Interfaces.Persistence;
 using DGII.Domain.Entities;
+using DGII.Domain.Errors;
 using ErrorOr;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -32,7 +33,7 @@ public class GetComprobantesFiscalesByContribuyenteQueryHandler : IRequestHandle
             if (!comprobantesFiscales.Any())
             {
                 _logger.LogWarning("No se encontraron comprobantes fiscales para el contribuyente {RncCedula}", request.RncCedula);
-                return Error.NotFound("ComprobantesFiscales.NotFound", $"No se encontraron comprobantes fiscales para el contribuyente {request.RncCedula}");
+                return DgiiErrors.ComprobanteFiscal.NotFound(request.RncCedula);
             }
 
             var comprobantesFiscalesDto = comprobantesFiscales.Select(cf => new ComprobanteFiscalByContribuyenteDto(
@@ -50,7 +51,7 @@ public class GetComprobantesFiscalesByContribuyenteQueryHandler : IRequestHandle
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al obtener comprobantes fiscales para el contribuyente {RncCedula}", request.RncCedula);
-            return Error.Failure("ComprobantesFiscales.GetByContribuyente", "Error al obtener comprobantes fiscales por contribuyente");
+            return DgiiErrors.General.DatabaseConnection;
         }
     }
 }

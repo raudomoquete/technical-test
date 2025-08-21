@@ -46,9 +46,10 @@ builder.Host.UseSerilog(
 
 var app = builder.Build();
 
-// To check the Headers
-app.UseLogHeadersMiddleware(); // add here right after you create app
-app.UseRequestLoggingMiddleware(); // add here right after you create app
+// Middleware pipeline
+app.UseLogHeadersMiddleware();
+app.UseRequestLoggingMiddleware();
+app.UseMiddleware<ErrorOrMiddleware>();
 
 // Configure the HTTP request pipeline.
 

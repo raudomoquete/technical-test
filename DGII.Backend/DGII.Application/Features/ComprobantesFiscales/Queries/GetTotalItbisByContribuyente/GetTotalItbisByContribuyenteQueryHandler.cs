@@ -1,5 +1,6 @@
 using DGII.Application.Interfaces.Persistence;
 using DGII.Domain.Entities;
+using DGII.Domain.Errors;
 using ErrorOr;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -36,7 +37,7 @@ public class GetTotalItbisByContribuyenteQueryHandler : IRequestHandler<GetTotal
             if (contribuyente == null)
             {
                 _logger.LogWarning("No se encontró el contribuyente {RncCedula}", request.RncCedula);
-                return Error.NotFound("Contribuyente.NotFound", $"No se encontró el contribuyente {request.RncCedula}");
+                return DgiiErrors.Contribuyente.NotFound(request.RncCedula);
             }
 
             // Calcular el total de ITBIS usando el método específico del repositorio
@@ -56,7 +57,7 @@ public class GetTotalItbisByContribuyenteQueryHandler : IRequestHandler<GetTotal
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al calcular el total de ITBIS para el contribuyente {RncCedula}", request.RncCedula);
-            return Error.Failure("ComprobantesFiscales.GetTotalItbis", "Error al calcular el total de ITBIS por contribuyente");
+            return DgiiErrors.General.DatabaseConnection;
         }
     }
 }
