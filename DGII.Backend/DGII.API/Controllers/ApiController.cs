@@ -1,4 +1,3 @@
-﻿
 using ILogger = Serilog.ILogger;
 
 namespace DGII.API.Controllers;

@@ -11,10 +11,23 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
-        Title = "DGII Test",
+        Title = "DGII API",
         Version = "v1",
-        Description = "API de prueba para la DGII"
+        Description = "API para la gestión de contribuyentes y comprobantes fiscales de la DGII",
+        Contact = new Microsoft.OpenApi.Models.OpenApiContact
+        {
+            Name = "DGII Development Team",
+            Email = "dev@dgii.gov.do"
+        }
     });
+
+    // Incluir comentarios XML si existen
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        c.IncludeXmlComments(xmlPath);
+    }
 });
 
 builder.Host.UseSerilog(
@@ -40,7 +53,13 @@ app.UseRequestLoggingMiddleware(); // add here right after you create app
 // Configure the HTTP request pipeline.
 
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "DGII API v1");
+    c.RoutePrefix = string.Empty; // Para que Swagger esté en la raíz
+});
+
+app.UseCors("AllowAll");
 
 app.UseSerilogRequestLogging();
 app.UseExceptionHandler(); // Para probar la version .net 8
