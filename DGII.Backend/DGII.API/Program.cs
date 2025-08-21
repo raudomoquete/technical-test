@@ -1,6 +1,7 @@
 using DGII.API;
 using DGII.Application;
 using DGII.Infrastructure;
+using DGII.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +47,9 @@ builder.Host.UseSerilog(
 
 var app = builder.Build();
 
+// Inicializar base de datos
+await DatabaseInitializer.InitializeAsync(app.Services);
+
 // Middleware pipeline
 app.UseLogHeadersMiddleware();
 app.UseRequestLoggingMiddleware();
@@ -57,7 +61,7 @@ app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "DGII API v1");
-    c.RoutePrefix = string.Empty; // Para que Swagger esté en la raíz
+    c.RoutePrefix = "swagger"; // Para que Swagger esté en /swagger
 });
 
 app.UseCors("AllowAll");

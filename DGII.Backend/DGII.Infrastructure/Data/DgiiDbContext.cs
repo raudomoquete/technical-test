@@ -82,4 +82,15 @@ public class DgiiDbContext : DbContext
             entity.HasIndex(e => e.estatus);
         });
     }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var result = await base.SaveChangesAsync(cancellationToken);
+        return result;
+    }
+
+    public async Task SeedDataAsync()
+    {
+        await DgiiDbContextSeed.SeedAsync(this);
+    }
 }

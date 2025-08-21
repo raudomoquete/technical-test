@@ -45,6 +45,9 @@ public static class DependencyInjection
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
         });
 
+        // Registrar también el DbContext genérico para que los repositorios puedan inyectarlo
+        services.AddScoped<DbContext>(sp => sp.GetRequiredService<TContext>());
+
         services.AddScoped<IRepositoryFactory, UnitOfWork<TContext>>();
         // Following has a issue: IUnitOfWork cannot support multiple dbcontext/database,
         // that means cannot call AddUnitOfWork<TContext> multiple times.
