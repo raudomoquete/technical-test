@@ -1,4 +1,11 @@
-﻿namespace DGII.Infrastructure;
+﻿using DGII.Infrastructure.Data;
+using DGII.Infrastructure.Repositories;
+using DGII.Application.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace DGII.Infrastructure;
 
 public static class DependencyInjection
 {
@@ -9,8 +16,8 @@ public static class DependencyInjection
     {
         var assembly = typeof(DependencyInjection).Assembly;
         services
-            .AddServices();
-            //.AddPersistence<dbContextDGII>(configuration);
+            .AddServices()
+            .AddPersistence<DgiiDbContext>(configuration);
 
         services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
 
@@ -32,8 +39,7 @@ public static class DependencyInjection
     {
         services.AddDbContext<TContext>((sp, options) =>
         {
-
-            options.UseSqlServer(configuration.GetConnectionString("Dgii_test_DB"));
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
         });
 
         services.AddScoped<IRepositoryFactory, UnitOfWork<TContext>>();
