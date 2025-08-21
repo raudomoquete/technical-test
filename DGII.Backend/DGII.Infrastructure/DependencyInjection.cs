@@ -1,6 +1,7 @@
 ﻿using DGII.Infrastructure.Data;
 using DGII.Infrastructure.Repositories;
 using DGII.Application.Interfaces;
+using DGII.Application.Interfaces.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,7 +27,9 @@ public static class DependencyInjection
 
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
-       // TO DO: Add the services needed here
+        // Registrar repositorios específicos
+        services.AddScoped<IContribuyenteRepository, ContribuyenteRepository>();
+        services.AddScoped<IComprobanteFiscalRepository, ComprobanteFiscalRepository>();
 
         return services;
     }

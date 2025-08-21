@@ -1,4 +1,5 @@
 using DGII.Application.Interfaces;
+using DGII.Application.Interfaces.Persistence;
 using DGII.Domain.Entities;
 using ErrorOr;
 using MediatR;
@@ -8,12 +9,12 @@ namespace DGII.Application.Features.Contribuyentes.Commands.CreateContribuyente;
 
 public class CreateContribuyenteCommandHandler : IRequestHandler<CreateContribuyenteCommand, ErrorOr<Guid>>
 {
-    private readonly IRepository<Contribuyente> _contribuyenteRepository;
+    private readonly IContribuyenteRepository _contribuyenteRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<CreateContribuyenteCommandHandler> _logger;
 
     public CreateContribuyenteCommandHandler(
-        IRepository<Contribuyente> contribuyenteRepository,
+        IContribuyenteRepository contribuyenteRepository,
         IUnitOfWork unitOfWork,
         ILogger<CreateContribuyenteCommandHandler> logger)
     {
@@ -31,8 +32,7 @@ public class CreateContribuyenteCommandHandler : IRequestHandler<CreateContribuy
             _logger.LogInformation("Creando contribuyente con RNC/Cédula: {RncCedula}", request.RncCedula);
 
             // Verificar si ya existe un contribuyente con el mismo RNC/Cédula
-            var existingContribuyente = await _contribuyenteRepository.GetFirstOrDefaultAsync(
-                predicate: c => c.rncCedula == request.RncCedula);
+            var existingContribuyente = await _contribuyenteRepository.GetByRncCedulaAsync(request.RncCedula);
 
             if (existingContribuyente != null)
             {

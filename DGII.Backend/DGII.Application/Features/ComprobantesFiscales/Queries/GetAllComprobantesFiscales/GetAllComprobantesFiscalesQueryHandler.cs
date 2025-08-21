@@ -1,4 +1,4 @@
-using DGII.Application.Interfaces;
+using DGII.Application.Interfaces.Persistence;
 using DGII.Domain.Entities;
 using ErrorOr;
 using MediatR;
@@ -8,11 +8,11 @@ namespace DGII.Application.Features.ComprobantesFiscales.Queries.GetAllComproban
 
 public class GetAllComprobantesFiscalesQueryHandler : IRequestHandler<GetAllComprobantesFiscalesQuery, ErrorOr<IEnumerable<ComprobanteFiscalDto>>>
 {
-    private readonly IRepository<ComprobanteFiscal> _comprobanteFiscalRepository;
+    private readonly IComprobanteFiscalRepository _comprobanteFiscalRepository;
     private readonly ILogger<GetAllComprobantesFiscalesQueryHandler> _logger;
 
     public GetAllComprobantesFiscalesQueryHandler(
-        IRepository<ComprobanteFiscal> comprobanteFiscalRepository,
+        IComprobanteFiscalRepository comprobanteFiscalRepository,
         ILogger<GetAllComprobantesFiscalesQueryHandler> logger)
     {
         _comprobanteFiscalRepository = comprobanteFiscalRepository;
@@ -27,8 +27,7 @@ public class GetAllComprobantesFiscalesQueryHandler : IRequestHandler<GetAllComp
         {
             _logger.LogInformation("Obteniendo listado de todos los comprobantes fiscales");
 
-            var comprobantesFiscales = await _comprobanteFiscalRepository.GetAllAsync(
-                include: q => q.Include(cf => cf.Contribuyente));
+            var comprobantesFiscales = await _comprobanteFiscalRepository.GetAllWithContribuyenteAsync();
 
             var comprobantesFiscalesDto = comprobantesFiscales.Select(cf => new ComprobanteFiscalDto(
                 rncCedula: cf.Contribuyente.rncCedula,

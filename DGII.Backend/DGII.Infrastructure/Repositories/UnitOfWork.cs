@@ -1,4 +1,6 @@
 ﻿using DGII.Application.Interfaces;
+using DGII.Application.Interfaces.Persistence;
+using DGII.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Transactions;
@@ -11,6 +13,10 @@ public class UnitOfWork<TContext> : IRepositoryFactory, IUnitOfWork<TContext>, I
     private readonly TContext _context;
     private bool disposed = false;
     private Dictionary<Type, object> repositories;
+
+    // Repositorios específicos
+    private IContribuyenteRepository? _contribuyenteRepository;
+    private IComprobanteFiscalRepository? _comprobanteFiscalRepository;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UnitOfWork{TContext}"/> class.
@@ -26,6 +32,30 @@ public class UnitOfWork<TContext> : IRepositoryFactory, IUnitOfWork<TContext>, I
     /// </summary>
     /// <returns>The instance of type <typeparamref name="TContext"/>.</returns>
     public TContext DbContext => _context;
+
+    /// <summary>
+    /// Gets the contribuyente repository.
+    /// </summary>
+    public IContribuyenteRepository ContribuyenteRepository
+    {
+        get
+        {
+            _contribuyenteRepository ??= new ContribuyenteRepository(_context);
+            return _contribuyenteRepository;
+        }
+    }
+
+    /// <summary>
+    /// Gets the comprobante fiscal repository.
+    /// </summary>
+    public IComprobanteFiscalRepository ComprobanteFiscalRepository
+    {
+        get
+        {
+            _comprobanteFiscalRepository ??= new ComprobanteFiscalRepository(_context);
+            return _comprobanteFiscalRepository;
+        }
+    }
 
     public void Dispose()
     {
@@ -129,4 +159,47 @@ public class UnitOfWork<TContext> : IRepositoryFactory, IUnitOfWork<TContext>, I
             return count;
         }
     }
+
+    #region Métodos específicos para DGII
+
+    /// <summary>
+    /// Obtiene un contribuyente por su RNC/Cédula
+    /// </summary>
+    /// <param name="rncCedula">El RNC/Cédula del contribuyente</param>
+    /// <returns>El contribuyente encontrado o null si no existe</returns>
+    public async Task<Contribuyente?> GetContribuyenteByRncCedulaAsync(string rncCedula)
+    {
+        return await ContribuyenteRepository.GetByRncCedulaAsync(rncCedula);
+    }
+
+    /// <summary>
+    /// Obtiene todos los comprobantes fiscales de un contribuyente por RNC/Cédula
+    /// </summary>
+    /// <param name="rncCedula">El RNC/Cédula del contribuyente</param>
+    /// <returns>Lista de comprobantes fiscales del contribuyente</returns>
+    public async Task<IList<ComprobanteFiscal>> GetComprobantesByContribuyenteAsync(string rncCedula)
+    {
+        return await ComprobanteFiscalRepository.GetByContribuyenteRncCedulaAsync(rncCedula);
+    }
+
+    /// <summary>
+    /// Calcula el total de ITBIS de todos los comprobantes fiscales de un contribuyente
+    /// </summary>
+    /// <param name="rncCedula">El RNC/Cédula del contribuyente</param>
+    /// <returns>El total de ITBIS</returns>
+    public async Task<decimal> GetTotalItbisByContribuyenteAsync(string rncCedula)
+    {
+        return await ComprobanteFiscalRepository.GetTotalItbisByContribuyenteRncCedulaAsync(rncCedula);
+    }
+
+    /// <summary>
+    /// Obtiene todos los comprobantes fiscales con información del contribuyente incluida
+    /// </summary>
+    /// <returns>Lista de comprobantes fiscales con contribuyente</returns>
+    public async Task<IList<ComprobanteFiscal>> GetAllComprobantesWithContribuyenteAsync()
+    {
+        return await ComprobanteFiscalRepository.GetAllWithContribuyenteAsync();
+    }
+
+    #endregion
 }

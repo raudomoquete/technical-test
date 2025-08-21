@@ -1,19 +1,18 @@
-using DGII.Application.Interfaces;
+using DGII.Application.Interfaces.Persistence;
 using DGII.Domain.Entities;
 using ErrorOr;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
 
 namespace DGII.Application.Features.ComprobantesFiscales.Queries.GetComprobantesFiscalesByContribuyente;
 
 public class GetComprobantesFiscalesByContribuyenteQueryHandler : IRequestHandler<GetComprobantesFiscalesByContribuyenteQuery, ErrorOr<IEnumerable<ComprobanteFiscalByContribuyenteDto>>>
 {
-    private readonly IRepository<ComprobanteFiscal> _comprobanteFiscalRepository;
+    private readonly IComprobanteFiscalRepository _comprobanteFiscalRepository;
     private readonly ILogger<GetComprobantesFiscalesByContribuyenteQueryHandler> _logger;
 
     public GetComprobantesFiscalesByContribuyenteQueryHandler(
-        IRepository<ComprobanteFiscal> comprobanteFiscalRepository,
+        IComprobanteFiscalRepository comprobanteFiscalRepository,
         ILogger<GetComprobantesFiscalesByContribuyenteQueryHandler> logger)
     {
         _comprobanteFiscalRepository = comprobanteFiscalRepository;
@@ -28,9 +27,7 @@ public class GetComprobantesFiscalesByContribuyenteQueryHandler : IRequestHandle
         {
             _logger.LogInformation("Obteniendo comprobantes fiscales para el contribuyente {RncCedula}", request.RncCedula);
 
-            var comprobantesFiscales = await _comprobanteFiscalRepository.GetAllAsync(
-                predicate: cf => cf.Contribuyente.rncCedula == request.RncCedula,
-                include: q => q.Include(cf => cf.Contribuyente));
+            var comprobantesFiscales = await _comprobanteFiscalRepository.GetByContribuyenteRncCedulaAsync(request.RncCedula);
 
             if (!comprobantesFiscales.Any())
             {

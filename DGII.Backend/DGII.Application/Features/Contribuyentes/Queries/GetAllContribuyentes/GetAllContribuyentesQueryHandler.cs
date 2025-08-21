@@ -1,4 +1,4 @@
-using DGII.Application.Interfaces;
+using DGII.Application.Interfaces.Persistence;
 using DGII.Domain.Entities;
 using ErrorOr;
 using MediatR;
@@ -8,11 +8,11 @@ namespace DGII.Application.Features.Contribuyentes.Queries.GetAllContribuyentes;
 
 public class GetAllContribuyentesQueryHandler : IRequestHandler<GetAllContribuyentesQuery, ErrorOr<IEnumerable<ContribuyenteDto>>>
 {
-    private readonly IRepository<Contribuyente> _contribuyenteRepository;
+    private readonly IContribuyenteRepository _contribuyenteRepository;
     private readonly ILogger<GetAllContribuyentesQueryHandler> _logger;
 
     public GetAllContribuyentesQueryHandler(
-        IRepository<Contribuyente> contribuyenteRepository,
+        IContribuyenteRepository contribuyenteRepository,
         ILogger<GetAllContribuyentesQueryHandler> logger)
     {
         _contribuyenteRepository = contribuyenteRepository;

@@ -1,4 +1,4 @@
-using DGII.Application.Interfaces;
+using DGII.Application.Interfaces.Persistence;
 using DGII.Domain.Entities;
 using ErrorOr;
 using MediatR;
@@ -8,13 +8,13 @@ namespace DGII.Application.Features.ComprobantesFiscales.Queries.GetTotalItbisBy
 
 public class GetTotalItbisByContribuyenteQueryHandler : IRequestHandler<GetTotalItbisByContribuyenteQuery, ErrorOr<TotalItbisByContribuyenteDto>>
 {
-    private readonly IRepository<ComprobanteFiscal> _comprobanteFiscalRepository;
-    private readonly IRepository<Contribuyente> _contribuyenteRepository;
+    private readonly IComprobanteFiscalRepository _comprobanteFiscalRepository;
+    private readonly IContribuyenteRepository _contribuyenteRepository;
     private readonly ILogger<GetTotalItbisByContribuyenteQueryHandler> _logger;
 
     public GetTotalItbisByContribuyenteQueryHandler(
-        IRepository<ComprobanteFiscal> comprobanteFiscalRepository,
-        IRepository<Contribuyente> contribuyenteRepository,
+        IComprobanteFiscalRepository comprobanteFiscalRepository,
+        IContribuyenteRepository contribuyenteRepository,
         ILogger<GetTotalItbisByContribuyenteQueryHandler> logger)
     {
         _comprobanteFiscalRepository = comprobanteFiscalRepository;
@@ -31,8 +31,7 @@ public class GetTotalItbisByContribuyenteQueryHandler : IRequestHandler<GetTotal
             _logger.LogInformation("Calculando total de ITBIS para el contribuyente {RncCedula}", request.RncCedula);
 
             // Verificar que el contribuyente existe
-            var contribuyente = await _contribuyenteRepository.GetFirstOrDefaultAsync(
-                predicate: c => c.rncCedula == request.RncCedula);
+            var contribuyente = await _contribuyenteRepository.GetByRncCedulaAsync(request.RncCedula);
 
             if (contribuyente == null)
             {
@@ -40,12 +39,8 @@ public class GetTotalItbisByContribuyenteQueryHandler : IRequestHandler<GetTotal
                 return Error.NotFound("Contribuyente.NotFound", $"No se encontró el contribuyente {request.RncCedula}");
             }
 
-            // Obtener todos los comprobantes fiscales del contribuyente
-            var comprobantesFiscales = await _comprobanteFiscalRepository.GetAllAsync(
-                predicate: cf => cf.ContribuyenteId == contribuyente.Id);
-
-            // Calcular el total de ITBIS
-            var totalItbis = comprobantesFiscales.Sum(cf => cf.itbis18);
+            // Calcular el total de ITBIS usando el método específico del repositorio
+            var totalItbis = await _comprobanteFiscalRepository.GetTotalItbisByContribuyenteRncCedulaAsync(request.RncCedula);
 
             var result = new TotalItbisByContribuyenteDto(
                 rncCedula: contribuyente.rncCedula,

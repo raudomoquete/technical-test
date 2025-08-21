@@ -1,4 +1,5 @@
 using DGII.Application.Interfaces;
+using DGII.Application.Interfaces.Persistence;
 using DGII.Domain.Entities;
 using ErrorOr;
 using MediatR;
@@ -8,14 +9,14 @@ namespace DGII.Application.Features.ComprobantesFiscales.Commands.CreateComproba
 
 public class CreateComprobanteFiscalCommandHandler : IRequestHandler<CreateComprobanteFiscalCommand, ErrorOr<Guid>>
 {
-    private readonly IRepository<ComprobanteFiscal> _comprobanteFiscalRepository;
-    private readonly IRepository<Contribuyente> _contribuyenteRepository;
+    private readonly IComprobanteFiscalRepository _comprobanteFiscalRepository;
+    private readonly IContribuyenteRepository _contribuyenteRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<CreateComprobanteFiscalCommandHandler> _logger;
 
     public CreateComprobanteFiscalCommandHandler(
-        IRepository<ComprobanteFiscal> comprobanteFiscalRepository,
-        IRepository<Contribuyente> contribuyenteRepository,
+        IComprobanteFiscalRepository comprobanteFiscalRepository,
+        IContribuyenteRepository contribuyenteRepository,
         IUnitOfWork unitOfWork,
         ILogger<CreateComprobanteFiscalCommandHandler> logger)
     {
@@ -35,8 +36,7 @@ public class CreateComprobanteFiscalCommandHandler : IRequestHandler<CreateCompr
                 request.NCF, request.RncCedula);
 
             // Verificar que el contribuyente existe
-            var contribuyente = await _contribuyenteRepository.GetFirstOrDefaultAsync(
-                predicate: c => c.rncCedula == request.RncCedula);
+            var contribuyente = await _contribuyenteRepository.GetByRncCedulaAsync(request.RncCedula);
 
             if (contribuyente == null)
             {
@@ -45,8 +45,7 @@ public class CreateComprobanteFiscalCommandHandler : IRequestHandler<CreateCompr
             }
 
             // Verificar si ya existe un comprobante fiscal con el mismo NCF
-            var existingComprobante = await _comprobanteFiscalRepository.GetFirstOrDefaultAsync(
-                predicate: cf => cf.NCF == request.NCF);
+            var existingComprobante = await _comprobanteFiscalRepository.GetByNcfAsync(request.NCF);
 
             if (existingComprobante != null)
             {
