@@ -9,25 +9,45 @@ function App() {
   const [totalItbis, setTotalItbis] = useState(null);
 
   useEffect(() => {
-    // Fetch contributors
+    // Fetch contributors and their fiscal receipts in one go if possible
     fetch('https://localhost:7113/api/contribuyentes')
-      .then(response => response.json())
-      .then(data => setContributors(data))
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (Array.isArray(data)) {
+          setContributors(data);
+        } else {
+          console.error('Invalid data format');
+        }
+      })
       .catch(error => console.error('Error fetching contributors:', error));
   }, []);
 
   const handleContributorClick = (rncCedula) => {
     setSelectedContributor(rncCedula);
-    // Fetch fiscal receipts
-    fetch(`https://localhost:7113/api/contribuyentes/${rncCedula}/comprobantes`)
-      .then(response => response.json())
-      .then(data => setFiscalReceipts(data))
-      .catch(error => console.error('Error fetching fiscal receipts:', error));
-    // Fetch total ITBIS
-    fetch(`https://localhost:7113/api/contribuyentes/${rncCedula}/total-itbis`)
-      .then(response => response.json())
-      .then(data => setTotalItbis(data))
-      .catch(error => console.error('Error fetching total ITBIS:', error));
+    // Fetch fiscal receipts and total ITBIS
+    Promise.all([
+      fetch(`https://localhost:7113/api/contribuyentes/${rncCedula}/comprobantes`),
+      fetch(`https://localhost:7113/api/contribuyentes/${rncCedula}/total-itbis`)
+    ])
+      .then(async ([receiptsResponse, itbisResponse]) => {
+        if (!receiptsResponse.ok || !itbisResponse.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const receiptsData = await receiptsResponse.json();
+        const itbisData = await itbisResponse.json();
+        if (Array.isArray(receiptsData)) {
+          setFiscalReceipts(receiptsData);
+        } else {
+          console.error('Invalid receipts data format');
+        }
+        setTotalItbis(itbisData);
+      })
+      .catch(error => console.error('Error fetching data:', error));
   };
 
   return (
