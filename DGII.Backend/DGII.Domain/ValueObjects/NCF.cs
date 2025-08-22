@@ -6,15 +6,21 @@ public record NCF
 {
     public string Value { get; }
 
+    private static readonly Regex NCFRegex = new Regex(@"^E3\d{11}$", RegexOptions.Compiled);
+
     public NCF(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("El NCF no puede estar vacío.", nameof(value));
+        {
+            throw new ArgumentException("NCF no puede estar vacío");
+        }
 
-        if (!IsValidNCF(value))
-            throw new ArgumentException("El formato del NCF no es válido.", nameof(value));
+        if (!NCFRegex.IsMatch(value))
+        {
+            throw new ArgumentException("El formato del NCF no es válido");
+        }
 
-        Value = value.Trim().ToUpper();
+        Value = value;
     }
 
     public static bool IsValidNCF(string value)
@@ -23,12 +29,12 @@ public record NCF
             return false;
 
         // NCF debe tener exactamente 19 caracteres
-        if (value.Length != 19)
+        if (value.Length != 12)
             return false;
 
-        // NCF debe seguir el formato: E + 11 dígitos + 7 dígitos
-        // Ejemplo: E310000000001
-        var pattern = @"^[A-Z]\d{11}$";
+        // NCF debe seguir el formato: E + 11 dígitos
+        // Ejemplo: E31000000001
+        var pattern = @"^E\d{11}$";
         return Regex.IsMatch(value, pattern);
     }
 

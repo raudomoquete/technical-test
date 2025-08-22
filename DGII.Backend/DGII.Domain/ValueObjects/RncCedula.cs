@@ -22,9 +22,11 @@ public record RncCedula
         if (string.IsNullOrWhiteSpace(value))
             return false;
 
-        // RNC/Cédula debe tener entre 9 y 11 dígitos
-        var cleanValue = Regex.Replace(value, @"[^\d]", "");
-        return cleanValue.Length >= 9 && cleanValue.Length <= 11;
+        // Verificar que el valor contenga solo dígitos
+        if (!Regex.IsMatch(value, "^\\d{9,11}$"))
+            return false;
+
+        return true;
     }
 
     public static implicit operator string(RncCedula rncCedula) => rncCedula.Value;

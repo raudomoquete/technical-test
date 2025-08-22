@@ -24,7 +24,10 @@ public class ApiController : ControllerBase
         {
             return ValidationProblem(errors);
         }
-        HttpContext.Items[HttpContextItemKeys.Errors] = errors;
+        if (HttpContext?.Items != null)
+        {
+            HttpContext.Items[HttpContextItemKeys.Errors] = errors;
+        }
         return Problem(errors[0]);
     }
 
@@ -35,7 +38,7 @@ public class ApiController : ControllerBase
             ErrorType.Conflict => StatusCodes.Status409Conflict,
             ErrorType.Validation => StatusCodes.Status400BadRequest,
             ErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
-            ErrorType.Failure => StatusCodes.Status400BadRequest,
+            ErrorType.Failure => StatusCodes.Status500InternalServerError,
             ErrorType.NotFound => StatusCodes.Status404NotFound,
             _ => StatusCodes.Status500InternalServerError
         };
